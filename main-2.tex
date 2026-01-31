@@ -1,0 +1,161 @@
+\documentclass[11pt]{article}
+\author{Arhan Rupani (1008796812) and Joseph Duraisingh ()}
+% This is the local copy of the csc373 pset1
+% Finishing this assignment plus learning llatex from the book "not so short introduction to latex"
+% some comments are mine and some are by the prof
+
+%% preamble
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{fullpage}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{xifthen}%
+\usepackage[hidelinks,colorlinks]{hyperref}
+\setlength\parindent{0pt}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+% Counter for Questions
+\newcounter{question}
+
+% Question
+\newcommand{\question}[2]{%
+	\stepcounter{question}
+	\vspace{.25in} \textbf{Q\arabic{question} 
+		\ifthenelse{\isempty{#1}}%
+		{}% if no points
+		{[#1 Points]\ }% if #1 is not empty
+		#2}\vspace{0.10in}
+}
+
+% Subquestion
+\newcommand{\qpart}[2]{%
+	\vspace{.10in} \textbf{(#1)}
+	\ifthenelse{\isempty{#2}}%
+	{}% if no points
+	{[#2 Points]}% if #1 is not empty
+}
+
+\newcommand{\references}{\vspace{.25in}\textbf{References}\vspace{.10in}}
+
+% Solution to question
+\newcommand{\solution}{\vspace{.25in}\textbf{Solution}\vspace{.10in}}
+
+% Solution to subquestion
+\newcommand{\solpart}[1] {\vspace{.10in}\textbf{(#1)}}
+
+% Should the solutions be displayed?
+\newif\ifsolutions
+\solutionstrue
+
+% Should the marking scheme be displayed?
+\newif\ifmarkingscheme
+\markingschemefalse
+
+% Math commands
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\floor}[1]{\lfloor#1\rfloor}
+\newcommand{\ceil}[1]{\lceil#1\rceil}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\title{CSC373 Assignment 1 solutions}
+\date{Due Monday, 2026 Jan 26, 23:59 p.m. EST}
+
+\begin{document}
+\maketitle
+
+\question{20}{Divide and Conquer}
+
+A binary tree $T$ is complete if every internal node has two children and every leaf has the same depth. A subtree of a binary tree is any connected subgraph. 
+
+\qpart{a}{10} Suppose we want to find the largest complete binary tree that is a subtree of a given binary tree $T$. Design a a divide-and-conquer algorithm for computing this, returning the complete tree's root node $t$ and its depth $d.$
+
+\qpart{b}{10} Justify the correctness and runtime of the algorithm given in part (a).
+
+\question{20}{Divide and Conquer}
+
+Imagine we are given $n$ distinct points $P = \{p_1, \dots, p_n\}$ all lying on the line $y = 0$ and another $n$ distinct points $Q = \{q_1, \dots, q_n\}$ all lying on the line $y = 1$. Suppose we connect $p_i$ to $q_i$ using a line for each $1 \leq i \leq n.$ 
+
+\qpart{a}{10} Design a divide and conquer algorithm to determine how many pairs of lines intersect. The algorithm should run in time $O(n \log n)$.
+
+\qpart{b}{10} Briefly justify why the algorithm given in the previous part works. 
+
+
+
+\question{20}{Greedy Algorithms}
+
+You are to organize $n$ events where each takes one unit of time. Event $i$ will provide a profit
+of $g_i$ dollars ($g_i > 0$) if started at or before time $t_i$ where $t_i$ is an arbitrary real number.
+(Note: If an event is not started by $t_i$ then there is no benefit in scheduling it at all.
+All events can start as early as time $0$.)
+
+\qpart{a}{7}
+Design an efficient algorithm to find an optimal solution
+for this problem. Specify the data structure and the operations that you use in your algorithm.
+
+\qpart{b}{3} Analyze its time complexity.
+
+\qpart{c}{10} Prove that the algorithm is correct. 
+
+\vspace{10px}
+
+\textbf{Answer:}\\
+
+$E$ is a linked list of events, where each event $E_i$ is a node which contains the given info $t_i$ and $g_i$.\\
+In the algorithm we use a heuristic $h_i$ as defined below, which can be interpreted as maximum number of events that can be scheduled before the $i^{th}$ event to get a profit by the $i^{th}$ event.
+
+\begin{algorithm}
+\caption{GreedyEventSelect}\label{greedy-events}
+\begin{algorithmic}[1]
+\Procedure{GreedyEventSelect}{$E$}\Comment{E is the list of events } 
+    \For{each event $e$ in $E$}
+        \State initialize $h_i$ 
+		\State $h_i \gets \lceil {t_i - 1} \rceil$
+    \EndFor
+	\State \textbf{sort the events in non-decreasing order}
+	
+	\State Initilize $scheduleList$
+	\State Initilize $scheduleList_{min}$ as none \Comment{Attribute of the list which stores the list profitable job in the so far}
+	\For{each event $e$ in $E$} 
+	\If{$h_i < 0$}\Comment{skip events with deadline < 0}
+        \State next 
+	\Else
+		\If{$len(scheduleList) \le h_i$}
+			\State Add the job to the $scheduleList$			
+		\ElsIf{$scheduleList_{min}.g_i < e.g_i$}
+			\State Add the job to the $scheduleList$
+			\State Loop through $scheduleList$ to determine the lowest profit job and store it in $scheduleList_{min}$ \Comment{This step results in our greedy algorithm being of O($n^2$)}
+		\EndIf
+	
+	\EndIf	
+	\EndFor
+	
+    \State \textbf{return} $scheduleList$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+Run time of our algorithm is $O(n^2)$. The sorting part takes $O(nlogn)$ but then keeping track of smallest possible job in our schedule list at every iteration requires looping through it that results in the worst case running time of $O(n^2)$. However, I believe this overhead can be worked around by using other kinds of data structures more pertinent to this problem.\\
+
+\textbf{Proof:} 
+
+\question{20}{Greedy Algorithms}
+
+You are the mayor of the town of Camelot and have recently built a circular street inside the town. Merchants are applying to build their shops on the street, with each submitting an arc $(a, b)$ with $0 \leq a, b \leq 360$ labelling the portion where they would like to build their shop. For example, examples of requests may be a 25 degree region between $(75, 100)$ or $(350, 15).$ As mayor of the town, you would like to approve as many merchants' requests as possible to boost your town's economy. However, merchants will only be satisfied if and only if their entire request can be satisfied, so not all requests can be satisfied if some of the arcs overlap.
+
+\qpart{a}{7} Design an greedy algorithm to maximize the number of requests that can be satisfied.
+
+\qpart{b}{3} Analyze the run time of the algorithm given in part (a).
+
+\qpart{c}{5} Give an argument to show that your algorithm in part (a) is correct.
+
+\qpart{d}{5} Show that the greedy algorithm in part (a) may not maximize the total {\bf length} of the arcs being picked, although it maximizes the total number of requests being satisfied.
+
+
+\vspace{\baselineskip}
+\references \\
+Please write down your references here, including any paper or online resources you consult.  In the event that you use generative AI, at any point in your work cite it here, provide the prompt used to generate the response.  Ensure that your own words are used for everything and if Generative AI is used then a higher standard of scrutiny will be applied to your work so be careful to explain every step in the resulting algorithm in your own words.  Failure to do so will be considered plagiarism.
+
+\end{document}
