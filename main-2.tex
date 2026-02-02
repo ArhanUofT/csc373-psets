@@ -119,7 +119,7 @@ $scheduleList$ is a list of size $n$ which starts from index 0 and can be indexe
 	
 	\State Initilize $scheduleList[n]$\Comment{size n}
 	%\State Initilize $scheduleList_{min}$ as none \Comment{Attribute of the list which stores the least profitable job in the so far}
-	\For{each event $e$ in $E$} 
+	\For{each event $e$ in $E$}\Comment{$O(n^2)$} 
 	\If{$e.h < 0$}\Comment{skip events with deadline $\leq 0$}
         \State next 
 	\Else
@@ -136,7 +136,7 @@ $scheduleList$ is a list of size $n$ which starts from index 0 and can be indexe
 \end{algorithmic}
 \end{algorithm}
 
-Run time of our algorithm is $O(n^2)$. The sorting part takes $O(nlogn)$ but then keeping track of smallest possible job in our schedule list at every iteration requires looping through it that results in the worst case running time of $O(n^2)$. However, I believe this overhead can be worked around by using other kinds of data structures more pertinent to this problem.\\
+Worst case run time of our algorithm is $O(n^2)$. The sorting part takes $O(nlogn)$ but then while checking if an event fits in the optimal schedule or not requires it to be inserted in an empty position if available, and finding this empty position requires another backwards forloop. In the worst case this backwards forloop takes time $O(n)$, and doingf this for all the events means the worst case run time becomes $O(n^2)$. However, I believe this overhead can be worked around by using some kind of data structure which can keep track of the availability, if there is, and a pointer to the empty position.\\
 
 \textbf{Proof:} We will prove the optimality by induction,
 \begin{itemize}
@@ -149,13 +149,14 @@ Run time of our algorithm is $O(n^2)$. The sorting part takes $O(nlogn)$ but the
 	\item \textbf{Base case:} $S_0$ is promising as any optimal set extends it.
 	\item \textbf{Inductive step:} Assume some optimal set $O_j$ extends the subset $S_j$ selected by our algorithm after considering the $j_{th}$ most profitable event [IH]\\
 	We will show that there exists a set $O_{j+1}$ which extends the set $S_{j+1}$ chosen by our algorithm after considering the $j + 1^{st}$ most profitable event.
+	\item For $j + 1^{st}$ event, there are only two possible options either our algorithm adds it or doesnot add it to the set $S_{j+1}$
 	\item Say our geedy algorithm does not add $j + 1^{st}$ event to the set, that could be when
 	\begin{itemize}
-		\item $t_{j+1}$ is negative in which case if the optimal schedule has that job or not it does not affect the total profit
-		\item $j + 1^{st}$ cannot be scheduled because there are already greater than $h_{j+1}$ jobs scheduled all with greater profit (due to the sort in algorithm) therefore optimal schedule will not have it because it makes it suboptimal to replace one of the greater profit jobs [IH] 
-		\item Above are the only two cases when our algorithm does not schedule a job and we have shown that in both the cases $S_{j+1}$ extends the optimal set $O_{j+1}$
+		\item $t_{j+1}$ is negative in which case if the optimal schedule has that job or not, it does not affect the total profit, so $S_{j+1}$ is still optimal [IH]
+		\item $j + 1^{st}$ cannot be scheduled because there are already greater than $h_{j+1}$ jobs scheduled all with greater profit (due to the sort in algorithm) therefore optimal schedule will not have it because if it does then that is suboptimal as to accommodate, the optimal set has to replace one of the greater profit jobs with $t_{j+1}$, which makes total profit of $O_{j+1}$ less than that of $O_{j}$. Therefore, $S_{j+1}$ is still optimal [IH]
+		\item Above are the only two cases when our algorithm does not schedule a job and we have shown that in both the cases $S_{j+1}$ remains optimal 
 	\end{itemize} 
-	\item Say our greedy algorithm does add the $j + 1^{st}$ event to the set which means that there are less than or equal to $h_{j+1}$ jobs scheduled so far and so hte optimal schedule has to also have this event, if it doesnot than its suboptimal for total profit (as because of the sort there are no greater profit jobs coming up). Therefore, $S_{j+1}$ extends the optimal set $O_{j+1}$ in this case as well.\qed
+	\item Say our greedy algorithm does add the $j + 1^{st}$ event to the set which means that there are less than or equal to $h_{j+1}$ jobs scheduled so far and so hte optimal schedule has to also have this event, if it doesnot than its suboptimal for total profit (as because of the sort there are no greater profit jobs coming up). Therefore, $S_{j+1}$ remains optimal in this case as well.\qed
 \end{itemize}
 
 
@@ -216,6 +217,10 @@ Consider some optimal solution $O$. Now consider all the requests that have $a >
 		\item Using the fact that the greedy algoritm for linear scheduling is optimal, we are guranteed that in this case our algorithm will return an optimal solution comparable to $O$ 
 	\end{itemize}
 \end{itemize}
+
+We know that our algorithm is optimal for maximizing the total number of requests being satisfied (from the argument of optimality), however our algorithm does not always maximize the total {\bf length} of the arcs being picked. We will show this by giving an example.\\
+
+Consider the following set of requests, \set{(20, 60), (160, 200), (300, 340), (0, 180), (180, 360)}. Now selecting the requests \set{(0, 180), (180, 360)} leads to the total length of arcs being maximized, however our algorithm will not select these as it picks greedy based on earliest finish time. Our algorithm will pick the requests \set{(20, 60), (160, 200), (300, 340)} based on the earliest finish time heuristic and therefore results in the number of selected requests being maximized. 
 
 
 \vspace{\baselineskip}
