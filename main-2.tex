@@ -173,12 +173,59 @@ You are the mayor of the town of Camelot and have recently built a circular stre
 
 \vspace{10px}
 
-\textbf{Answer:}\\
+\textbf{Answer:} Below we will describe the idea of our algorithm along with some brief  justifications:\\
+
+\textbf{GreedyCircularScheduling()}
+\begin{enumerate}
+	\item Find all requests where $a > b$ and put them in a list/set $C$ (all of these jobs have a thing in common which is that they are all conflicting with any one of the jobs, this conflict is at the point $a = 0, b = 0$)
+	\item We consider one of these requests, say $r_i$, at a time and remove all the jobs which are conflicting with $r_i$. This means all the jobs in $C$ plus any other job which conflicts with this job $r_i$. The set of remaining jobs $R_i$ will be considered for further scheduling
+	\begin{enumerate}
+		\item Now readjust the coordinates of the circle where $0, 360$ falls at the $a$ of $r_i$, accordingly transform the coordinates $(a, b)$ of all the requests in $R_i$
+		\item Now the problem just becomes a linear job scheduling problem (as discussed in class) with start and finish times as transformed $(a, b)$, therefore apply the greedy algorithm where we sort by finish times to maximize the number of requests.
+		\item Store the maximum requests that can be accommodated in this iteration in a list $Max$ along with the corresponding order (store a pointer to an order object at each node)
+	\end{enumerate}
+
+	\item Repeat step 2 with all the requests in $C$ and once with removing all requests from $C$
+	\item Loop through the list $Max$ and return the maximum number along with its associated order 
+\end{enumerate}
+
+\textbf{Runtime analysis:} 
+\begin{itemize}
+	\item Step 1 takes time $O(n)$, which is just comparing $a$ and $b$ of each job for all the jobs
+	\item Step 2 also takes time $O(n)$, which is just checking if a job overlaps with a certain job, for all the jobs
+	\item Step 2a also takes time $O(n)$ in the worst case, which involves readjusting the coordinates for all the jobs in $C$
+	\item Step 2b takes time $O(nlogn)$ as it requires sorting to then implement greedy which is only $O(n)$
+	\item Step 2c takes time $O(1)$
+	\item Step 3 requires Steps 2, 2.a, 2.b, and 2.3 to be done $n$ times in the worst case, which now makes the running of this algorithm $n^2logn$
+	\item Step 4 takes $O(n)$ time 
+\end{itemize}
+Therefore, overall the worst case running time of this algorithm is $O(n^2logn)$\\
+
+\textbf{Argument for correctness}: For this proof we focus on a specific set of requests, that have $a > b$, which specifically make this a circular scheduling problem. Our algorithm heuristically transforms this circular scheduling problem into a linear scheduling problem. Therefore, here we will justify the optimality of this heuristic and then complete proof of optimality follows from the optimality proof of the greedy scheduling on the linear scheduling problem (done in class).\\
+
+Consider some optimal solution $O$. Now consider all the requests that have $a > b$ in set $C$. The optimal schedule $O$ can either some request from $C$ or not have any request from $C$.
+\begin{itemize}
+	\item Consider the case where it has one request $r_i$ from $C$
+	\begin{itemize}
+		\item It can only have one request $r_i$ from $C$ because all the other requests in $C$ conflict with $r_i$. This is due to the nature of all the requests in $C$.
+		\item Infact if $O$ has $r_i$ then it can not have any other requests that overlap with $r_i$, this means that if we cut the circle's circumference at the start time of $r_i$ and make it a straight line then upon scheduling of $r_i$ the rest of the problem becomes a linear job scheduling problem.
+	\end{itemize}
+	\item Consider the case where it does not have any request from $C$
+	\begin{itemize}
+		\item In our algorithm we first convert the circular scheduling problem to the linear scheduling problem, in step 3 we also consider the case where all of the requests from $C$ are removed
+		\item Using the fact that the greedy algoritm for linear scheduling is optimal, we are guranteed that in this case our algorithm will return an optimal solution comparable to $O$ 
+	\end{itemize}
+\end{itemize}
+
 
 \vspace{\baselineskip}
 \references \\
-Please write down your references here, including any paper or online resources you consult.  In the event that you use generative AI, at any point in your work cite it here, provide the prompt used to generate the response.  Ensure that your own words are used for everything and if Generative AI is used then a higher standard of scrutiny will be applied to your work so be careful to explain every step in the resulting algorithm in your own words.  Failure to do so will be considered plagiarism.
+Please write down your references here, including any paper or online resources you consult.  In the event that you use generative AI, at any point in your work cite it here, provide the prompt used to generate the response.  Ensure that your own words are used for everything and if Generative AI is used then a higher standard of scrutiny will be applied to your work so be careful to explain every step in the resulting algorithm in your own words.  Failure to do so will be considered plagiarism.\\
 
+No Gen. AI was used at any point in completing questions 3 and 4. The following online resource was consulted to gain insight in order to come up with a solution for question 4:
+\begin{itemize}
+	\item https://www.cse.iitd.ac.in/~amitk/SemI-2017/tut1.pdf
+\end{itemize}
 \end{document}
 
 	\If{$len(scheduleList) \le h_i$}
